@@ -143,12 +143,6 @@ function useActiveSection() {
   return active;
 }
 
-function formatTime(totalSeconds) {
-  const m = Math.floor(totalSeconds / 60);
-  const s = totalSeconds % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
-}
-
 // --- Minimal UI primitives (replacing shadcn/ui path-alias imports) ---
 function Card({ className = "", children }) {
   return (
@@ -201,15 +195,6 @@ function Pill({ children }) {
     <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80">
       {children}
     </span>
-  );
-}
-
-function Notes({ children }) {
-  return (
-    <div className="mt-3 rounded-3xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-50">
-      <div className="font-semibold mb-1">Speaker Notes</div>
-      <div className="text-amber-50/90 leading-relaxed">{children}</div>
-    </div>
   );
 }
 
@@ -291,62 +276,7 @@ function Nav() {
   );
 }
 
-function PresenterTools({ notes, setNotes }) {
-  const [running, setRunning] = useState(false);
-  const [seconds, setSeconds] = useState(0);
-
-  useEffect(() => {
-    if (!running) return;
-    const t = setInterval(() => setSeconds((s) => s + 1), 1000);
-    return () => clearInterval(t);
-  }, [running]);
-
-  return (
-    <Card>
-      <CardContent className="p-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-white">
-            <span className="text-sky-300">⏱️</span>
-            <div className="text-sm font-medium">Presenter Tools</div>
-          </div>
-          <Pill>{formatTime(seconds)} / 10:00</Pill>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button size="sm" className="rounded-2xl" onClick={() => setRunning((r) => !r)}>
-            {running ? "⏸️ Pause" : "▶️ Start"}
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            className="rounded-2xl"
-            onClick={() => {
-              setRunning(false);
-              setSeconds(0);
-            }}
-          >
-            🔄 Reset
-          </Button>
-          <Button
-            size="sm"
-            variant={notes ? "default" : "secondary"}
-            className="rounded-2xl ml-auto"
-            onClick={() => setNotes((n) => !n)}
-          >
-            {notes ? "Hide Notes" : "Show Notes"}
-          </Button>
-        </div>
-
-        <div className="text-xs text-white/60">
-          Tip: Keep the timer visible during rehearsal and hide it for the final delivery.
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function PresentationSite() {
-  const [showNotes, setShowNotes] = useState(false);
   const [code, setCode] = useState(sampleJava);
   const [steps, setSteps] = useState(() => translateCodeToSteps(sampleJava));
 
@@ -372,10 +302,8 @@ export default function PresentationSite() {
 
       <Nav />
 
-      <main className="relative mx-auto max-w-6xl px-4 py-10 md:py-14">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start">
-          {/* Content */}
-          <div className="space-y-14">
+      <main className="relative mx-auto max-w-4xl px-4 py-10 md:py-14">
+        <div className="space-y-14">
             {/* HOME */}
             <section id="home" className="scroll-mt-24">
               <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 md:p-8 shadow-xl shadow-red-500/10">
@@ -412,19 +340,13 @@ export default function PresentationSite() {
                   </Button>
                 </div>
 
-                {showNotes ? (
-                  <Notes>
-                    Hook: “We already wrote the test cases — they’re just hidden in code.” One sentence: repo had tests,
-                    Xray didn’t. Our goal: extract, structure, import.
-                  </Notes>
-                ) : null}
               </div>
             </section>
 
             {/* PROBLEM */}
             <section id="problem" className="scroll-mt-24">
               <SectionTitle
-                kicker="The problem"
+                kicker="The problem - Tiyani"
                 title="The Automation–Xray Mismatch"
                 subtitle="We had working Selenium automation in the repo, but not enough aligned test cases in Xray Jira. That creates gaps in traceability, reporting, and audit readiness."
               />
@@ -443,12 +365,6 @@ export default function PresentationSite() {
                     <li>Produce a consistent CSV structure compatible with Xray Importer</li>
                     <li>Keep humans in control (AI drafts, team validates)</li>
                   </ul>
-                  {showNotes ? (
-                    <Notes>
-                      Emphasize the “why”: traceability, reporting, audit. Not “AI for AI’s sake.” The repo already had
-                      the knowledge — we just needed it represented in Xray.
-                    </Notes>
-                  ) : null}
                 </CardContent>
               </Card>
             </section>
@@ -456,7 +372,7 @@ export default function PresentationSite() {
             {/* APPROACH */}
             <section id="approach" className="scroll-mt-24">
               <SectionTitle
-                kicker="The approach"
+                kicker="The approach - Tiyani"
                 title="AI‑Assisted Translation Pipeline"
                 subtitle="We used GitHub Copilot to read automation code, extract steps, and output Xray‑ready CSV. No custom models. No complex infrastructure. Just a repeatable prompt + review checklist."
               />
@@ -497,9 +413,6 @@ export default function PresentationSite() {
                     <span className="text-white/40">→</span>
                     <Pill>Import & validate</Pill>
                   </div>
-                  {showNotes ? (
-                    <Notes>AI is a “translator,” not an executor. It restructures existing intent. Human validation is mandatory.</Notes>
-                  ) : null}
                 </CardContent>
               </Card>
             </section>
@@ -507,12 +420,12 @@ export default function PresentationSite() {
             {/* DEMO */}
             <section id="demo" className="scroll-mt-24">
               <SectionTitle
-                kicker="Interactive demo"
+                kicker="Interactive demo - Vhonani"
                 title="Code → Steps → Xray CSV"
                 subtitle="This demo simulates the idea: turning automation intent into structured steps. In real life we used Copilot on the actual repo; here we show the concept end‑to‑end in your browser."
               />
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <Card>
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-3">
@@ -545,12 +458,6 @@ export default function PresentationSite() {
                       </ul>
                     </div>
 
-                    {showNotes ? (
-                      <Notes>
-                        Clarify: This browser demo is a simplified translator. The real story: Copilot read real code and
-                        produced a CSV mapping required by Xray importer.
-                      </Notes>
-                    ) : null}
                   </CardContent>
                 </Card>
 
@@ -582,7 +489,7 @@ export default function PresentationSite() {
             {/* RESULTS */}
             <section id="results" className="scroll-mt-24">
               <SectionTitle
-                kicker="Impact"
+                kicker="Impact - Vhonani"
                 title="What We Gained"
                 subtitle="The goal wasn’t ‘AI magic’ — it was alignment: repo truth represented in Xray for reporting, traceability, and team visibility."
               />
@@ -599,12 +506,6 @@ export default function PresentationSite() {
                   <div className="text-sm text-white/70">
                     <span className="text-white">Alignment rate</span> = (Automated tests represented in Xray) / (Automated tests in repo)
                   </div>
-                  {showNotes ? (
-                    <Notes>
-                      Use language the broader team cares about: traceability, reporting, audit. Mention this approach is
-                      especially useful when Xray is the source of truth for coverage.
-                    </Notes>
-                  ) : null}
                 </CardContent>
               </Card>
             </section>
@@ -612,7 +513,7 @@ export default function PresentationSite() {
             {/* GUARDRAILS */}
             <section id="guardrails" className="scroll-mt-24">
               <SectionTitle
-                kicker="Trust & control"
+                kicker="Trust & control - Ntuthuko"
                 title="Guardrails: AI With Rules"
                 subtitle="We treat AI output as a draft. Accountability stays with the team. This keeps quality high and avoids ‘hallucinated’ steps."
               />
@@ -642,100 +543,31 @@ export default function PresentationSite() {
                 </Card>
               </div>
 
-              {showNotes ? (
-                <Notes>Say this line: “AI accelerates thinking — responsibility stays with us.” It increases credibility.</Notes>
-              ) : null}
             </section>
 
             {/* CLOSE */}
             <section id="close" className="scroll-mt-24">
               <SectionTitle
-                kicker="Close"
+                kicker="Close - Ntuthuko"
                 title="AI as a Bridge — Not a Replacement"
                 subtitle="We didn’t invent new tests. We translated existing automation knowledge into a format the organization can track, report, and trust."
               />
 
               <Card>
                 <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-                    <div>
-                      <div className="text-white font-semibold">One question for the room</div>
-                      <div className="text-white/70 text-sm mt-1">
-                        What other “knowledge locked in code” could we translate into usable assets (requirements, test data, runbooks)?
-                      </div>
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      <Button className="rounded-2xl" onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}>
-                        Re-run demo
-                      </Button>
-                      <Button variant="secondary" className="rounded-2xl" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-                        Back to top
-                      </Button>
-                    </div>
-                  </div>
-
-                  {showNotes ? (
-                    <Notes>
-                      Close confidently: highlight alignment, traceability, and reducing documentation debt. Invite Q&A about scaling, reliability, and governance.
-                    </Notes>
-                  ) : null}
-                </CardContent>
-              </Card>
-
-              <div className="mt-6 text-xs text-white/50 flex items-center gap-2">
-                <span>🔗</span>
-                Tip: Export this as a static site (e.g., GitHub Pages) for a polished delivery.
-              </div>
-            </section>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-4 lg:sticky lg:top-24">
-            <PresenterTools notes={showNotes} setNotes={setShowNotes} />
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-sm font-medium text-white mb-2">Quick cues (10 min)</div>
-                <div className="space-y-2 text-xs text-white/70">
-                  <div className="flex justify-between"><span>Intro</span><span>1:00</span></div>
-                  <div className="flex justify-between"><span>Problem</span><span>1:30</span></div>
-                  <div className="flex justify-between"><span>Approach</span><span>1:30</span></div>
-                  <div className="flex justify-between"><span>Demo</span><span>2:30</span></div>
-                  <div className="flex justify-between"><span>Impact</span><span>1:30</span></div>
-                  <div className="flex justify-between"><span>Guardrails</span><span>1:00</span></div>
-                  <div className="flex justify-between"><span>Close</span><span>1:00</span></div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-sm font-medium text-white mb-2">Q&A starters</div>
-                <ul className="text-xs text-white/70 space-y-2 list-disc pl-5">
-                  <li>How do we validate AI output at scale?</li>
-                  <li>How do we keep Xray aligned as code changes?</li>
-                  <li>Where does this fit in our definition of done?</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-sm font-medium text-white mb-2">Demo controls</div>
-                <div className="text-xs text-white/70 space-y-2">
-                  <div>• Edit the code snippet</div>
-                  <div>• Click <span className="text-white">Translate</span> to regenerate steps and CSV</div>
-                  <div>• Use <span className="text-white">Copy CSV</span> to paste into an import file</div>
-                  <div className="pt-2">
-                    <Button variant={showNotes ? "default" : "secondary"} className="rounded-2xl w-full" onClick={() => setShowNotes((n) => !n)}>
-                      {showNotes ? "Hide Speaker Notes" : "Show Speaker Notes"}
+                  <div className="flex gap-2 flex-wrap md:justify-end">
+                    <Button className="rounded-2xl" onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}>
+                      Re-run demo
+                    </Button>
+                    <Button variant="secondary" className="rounded-2xl" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+                      Back to top
                     </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+
+                </CardContent>
+              </Card>
+            </section>
           </div>
-        </div>
 
         {/* Footer */}
         <div className="mt-14 pt-8 border-t border-white/10 text-xs text-white/50">
